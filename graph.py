@@ -110,7 +110,7 @@ text {
     latestY, latestB = max(max(user.keys()) for user in data.itervalues())
 
     print '<g id="block-backs">'
-    maxB = (latestY - YEAR_START)*4 + latestB - 1
+    maxB = (latestY - YEAR_START)*4 + (latestB - 1)
     for b in range(4*num_years):
         print '<rect x="' + str(50 + 25 * b) + '" y="50" width="25" ' + \
               'height="500" style="fill: ' + \
@@ -132,7 +132,7 @@ text {
                     score += data[user][(year, b+1)]
                     points.append((50 + 100*y + 25*(b+1), 550 - score/60*100))
 
-        points.append((50 + 100*(latestY-YEAR_START) + 25*(b-1), 550 - score/60*100))
+        points.append((50 + 100*(latestY-YEAR_START) + 25*latestB, 550 - score/60*100))
         points = sorted(list(Set(points)))
 
         pointstr = ' '.join(map(lambda (x, y): str(x)+','+str(y), points))
@@ -142,7 +142,7 @@ text {
               'stroke-width: 3px; stroke: '+get_color(index)+'; fill:none;" ' + \
               'id="user-score-'+clean_name(user)+'-line" />'
 
-        x1 = 50 + 100*(latestY-YEAR_START) + 25*(b-1)
+        x1 = 50 + 100*(latestY-YEAR_START) + 25*latestB
         y1 = 550 - score/60*100
         x2 = 50 + 100* num_years
         y2 = max((550 - y1) / (studiestartX - x1) * (x2 - x1) + y1, 50)
