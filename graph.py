@@ -155,7 +155,7 @@ text {
 
     print '<g id="user-labels">'
     i = 0
-    for user in data.keys():
+    for user in sorted(data):
         index = users.index(clean_name(user))
         print '<rect x="' + str(56.25 + 100*(i%num_years)) + '" y="' + \
               str(600.0 + 20 * (i//num_years)) + '" width="87.5" height="15" ' + \
