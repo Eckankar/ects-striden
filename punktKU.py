@@ -109,7 +109,7 @@ class punktKU():
         ClassesHTML = urllib2.urlopen(punktKU.CLASSES_URL + self._session_id).read()
 
         # Parsing data
-        ClassesData = [l.split('>')[1] for l in ClassesHTML.splitlines() if l.startswith('      <td class="FastFontSize">')]
+        ClassesData = [l.split('>')[1] for l in ClassesHTML.splitlines() if l.startswith('      <td class="FastFontSize">') and not l.endswith('Detailvisning lukket')]
 
         Classes = []
 
