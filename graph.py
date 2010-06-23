@@ -2,17 +2,22 @@
 # ECTS Striden 
 import re
 from sets import Set
+from random import randint
 
 YEAR_START = 2000
 YEAR_END = 2010
 
-COLORS = [(42, 187, 83),(76, 173, 185),(31, 46, 59),(165, 120, 63),(100, 151, 161),(33, 165, 127),(52, 3, 145),(6, 83, 191),(141, 133, 110),(165, 88, 149),(143, 38, 86),(144, 138, 36),(10, 39, 8),(117, 7, 109),(7, 128, 137),(76, 129, 187),(87, 58, 120),(67, 82, 188),(177, 189, 80),(79, 125, 135),(19, 17, 27),(64, 168, 37),(176, 93, 184),(12, 129, 103),(9, 147, 180),(176, 156, 26),(130, 69, 160),(49, 189, 165), (82, 77, 232), (155, 168, 91), (255, 93, 13), (133, 102, 0), (107, 174, 232)]
+COLORS = []
 
 def clean_name(name):
     return re.sub(r'[^A-Za-z0-9]', '_', name)
 
 def get_color(i):
     return 'rgb' + str(COLORS[i])
+
+def populate_colors(n):
+    for i in range(n):
+        COLORS.append((randint(0, 255), randint(0, 255), randint(0, 255)))
 
 def make_svg(data):
     users = map(clean_name, sorted(data.keys()))
@@ -274,6 +279,8 @@ if __name__ == '__main__':
     print "Content-Type: image/svg+xml\n"
 
     data = parse_data('ectsdata')
+
+    populate_colors(len(data))
 
     make_svg(data)
 

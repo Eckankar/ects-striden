@@ -1,0 +1,16 @@
+# vim:set tw=80
+- Ph. D. (og post-Ph.D.) support
+- OpenID-login
+- Skift til et standardformat (YAML?)
+- Integration med punkt.KU
+- Markers (bachelor/kandidat/ph.d./studieskift/studiestop)
+- Support for separate display-grupper (dvs datalogi har sin egen, matematik har en, ...)
+- Håndtere tab af ECTS pga studieskift
+- Graf over ECTS pr blok?
+- Forbedret prædiktion.
+    - Lineær regression?
+    - Slider så man kan vælge hvor langt tilbage prædiktionen baserer sine data
+      på (kun på sidste år, fx).
+- Mulighed for at folk kan indtaste hvilke kurser de har taget så vi kan
+  generere kassogram for dem.
+- Hash navnene og brug som seed til at generere farver
