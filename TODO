@@ -14,3 +14,7 @@
 - Mulighed for at folk kan indtaste hvilke kurser de har taget så vi kan
   generere kassogram for dem.
 - Hash navnene og brug som seed til at generere farver
+- Mulighed for at finde navne ud fra grafen med en form for mouseover, samt at disable dem ved at klikke på dem
+- Mulighed for zoom
+- Gøre så det hele kan være på en skærm uden scolling
+- Gøre så den ikke tegner grafen videre end der er viden om (det er irriterende med flade grafer til sidst)
