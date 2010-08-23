@@ -7,58 +7,59 @@ import getpass
 import urllib2, cookielib
 from urllib import urlencode
 
-class punktKU():
+class KUnet():
     # URL constants
-    OLD_LOGIN_URL='https://www2.adm.ku.dk/portal/login/loginProces.asp'
-    NEW_LOGIN_URL='https://www2.adm.ku.dk/portal/login/newLoginProces.asp'
-    LOGOUT_URL='https://www2.adm.ku.dk/portal/logud.asp'
-    MENU_URL='https://www2.adm.ku.dk/portal/LeftMenu/RegionalMenu.asp?RegionalMenu=0'
-    SESSION_ACTIVATE_URL='https://www2.adm.ku.dk/portal/default.asp?RegionalMenu=95&PageID=179&'
+    CPR_LOGIN_URL='https://www2.adm.ku.dk/ticketsso/!CAS_ticket.logon'
+    NUMMERPLADE_LOGIN_URL='https://intranet.ku.dk/CookieAuth.dll?Logon'
     ECTS_URL='https://www2.adm.ku.dk/selv/pls/prt_www5.res_renset?p_print=true&p_nyeste=false&p_flere_skala=true&p_renset=true&'
     CLASSES_URL='https://www2.adm.ku.dk/selv/pls/prt_www22.hold_oversigt?'
 
-    def __init__(self, user, password, oldLogin = False):
+    def __init__(self, user, password, cprLogin = True):
         # Initializes cookie handler
         jar = cookielib.CookieJar()
         handler = urllib2.HTTPCookieProcessor(jar)
         opener = urllib2.build_opener(handler)
         urllib2.install_opener(opener)
 
-        self._login(user, password, oldLogin)
+        self._login(user, password, cprLogin)
         self._get_p_session_id()
 
-    def __del__(self):
-        self._logout()
-
-    def _login(self, user, password, oldLogin):
+    def _login(self, user, password, cprLogin):
         # TODO: handle errors
-        if oldLogin:
-            logindata = {'ssousername': user, 'password': password}
-            urllib2.urlopen(punktKU.OLD_LOGIN_URL, urlencode(logindata)).read()
+        if cprLogin:
+            logindata = {
+                    'ssousername': user,
+                    'password': password,
+                    'p_serviceid': 40, # Which service to use, this one is "Selvbetjening Studerende"
+                    'p_logintype': 'db', 'p_from': 'loginpage', 'service': '' # Magic constants
+            }
+
+            r = urllib2.urlopen(KUnet.CPR_LOGIN_URL, urlencode(logindata)).read()
+            self._session_url = re.search(r'(?<=\nLocation: )[^\n]*(?=\n)', r).group(0)
         else:
-            logindata = {'username': user, 'password': password}
-            urllib2.urlopen(punktKU.NEW_LOGIN_URL, urlencode(logindata)).read()
+            logindata = {
+                    'username': user,
+                    'password': password,
+                    'curl': 'Z2FSiderZ2Fdefault.aspx'
+           }
+            urllib2.urlopen(KUnet.NUMMERPLADE_LOGIN_URL, urlencode(logindata)).read()
+
+            selvbetjeningHTML = urllib2.urlopen("https://intranet.ku.dk/Selvbetjening/Sider/default.aspx").read()
+            iframe_attributes = re.search(r'(?<=<iframe )[^>]*(?=>)', selvbetjeningHTML).group(0)
+            self._session_url = re.search(r'(?<=src=")[^"]*(?=")', iframe_attributes).group(0)
 
         self._isLoggedIn = True
-
+    
     def _get_p_session_id(self):
-        sessionHTML = urllib2.urlopen(punktKU.MENU_URL).read()
+        sessionHTML = urllib2.urlopen(self._session_url).read()
         self._session_id = re.search(r'p_session_id=[^"&]*', sessionHTML).group(0)
-
-        # For some reason punkt.KU wants us to activate the session ID by going to this page first
-        urllib2.urlopen(punktKU.SESSION_ACTIVATE_URL + self._session_id).read()
-
-    def _logout(self):
-        if self._isLoggedIn:
-            urllib2.urlopen(punktKU.LOGOUT_URL).read()
-            self._isLoggedIn = False
 
     def getECTSData(self):
 
         Classes = self.getClasses()
 
         # Gets the page with the ECTS data
-        ECTShtml = urllib2.urlopen(punktKU.ECTS_URL + self._session_id).read()
+        ECTShtml = urllib2.urlopen(KUnet.ECTS_URL + self._session_id).read()
 
 
         # Parsing data
@@ -67,12 +68,17 @@ class punktKU():
 
         for d in ECTSdictionaries:
             # Converts the ects points to a proper number
-            d['ects_p'] = float(d['ects_p'])
+            if d['ects_p'] == "":
+                d['ects_p'] = 0.0
+            else:
+                d['ects_p'] = float(d['ects_p'])
+
+
 
             takenClasses = [(year,block) for (year,block,name) in Classes if name.startswith(d['tekst'])]
 
             if len(takenClasses) == 0:
-                # punktKU does not give any information about taken classes
+                # KUnet does not give any information about taken classes
                 # so just guess which block it is from the date
                 d['guess'] = True
 
@@ -106,7 +112,7 @@ class punktKU():
 
     def getClasses(self):
         # Gets the page with the class data
-        ClassesHTML = urllib2.urlopen(punktKU.CLASSES_URL + self._session_id).read()
+        ClassesHTML = urllib2.urlopen(KUnet.CLASSES_URL + self._session_id).read()
 
         # Parsing data
         ClassesData = [l.split('>')[1] for l in ClassesHTML.splitlines() if l.startswith('      <td class="FastFontSize">') and not l.endswith('Detailvisning lukket')]
@@ -129,7 +135,7 @@ class punktKU():
     def printBattleFormat(self, comments = True):
 
         # Gets course data into a format suitable for sorting and grouping
-        ECTSdata = [((d['year'], d['block'], d['blockduration']), d['ects_p'], d['tekst']) for d in self.getECTSData()]
+        ECTSdata = [((d['year'], d['block'], -d['blockduration'], d['blockduration']), d['ects_p'], d['tekst'].decode('iso-8859-1')) for d in self.getECTSData()]
         ECTSdata.sort()
 
         grouped = itertools.groupby(ECTSdata, operator.itemgetter(0))
@@ -137,7 +143,7 @@ class punktKU():
         curyear = 0
 
         # Iterates through the grouped data
-        for (year, block, blockduration), v in grouped:
+        for (year, block, nblockduration, blockduration), v in grouped:
 
             v = list(v)
 
@@ -155,7 +161,7 @@ class punktKU():
             else:
                 blockstring = "s" + str(block // 2) + ":"
 
-            print yearstring, blockstring, ects,
+            print yearstring, blockstring, ects, '\t',
 
             if comments:
                 print "#", reduce(lambda x,y : x + ", " + y, names)
@@ -175,9 +181,9 @@ if __name__ == '__main__':
         print
     else:
         if sys.argv[1].isdigit():
-            p = punktKU(sys.argv[1], getpass.getpass(), True)
+            p = KUnet(sys.argv[1], getpass.getpass(), True)
         else:
-            p = punktKU(sys.argv[1], getpass.getpass(), False)
+            p = KUnet(sys.argv[1], getpass.getpass(), False)
 
         if len(sys.argv) >= 3 and sys.argv[2] == "--disable-comments":
             p.printBattleFormat(False)
