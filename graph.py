@@ -5,7 +5,7 @@ from sets import Set
 from random import randint
 
 YEAR_START = 2000
-YEAR_END = 2010
+YEAR_END = 2011
 
 COLORS = []
 
