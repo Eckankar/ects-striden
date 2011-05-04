@@ -29,7 +29,7 @@ def make_svg(data):
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:svg="http://www.w3.org/2000/svg"
 	xmlns="http://www.w3.org/2000/svg"
-	width="1200"
+	width="1500"
 	height="700.0">
 <script type="text/javascript">
 <![CDATA[
@@ -75,7 +75,7 @@ function toggle_future() {
 		if ( futureon ) {
 			future.setAttribute("opacity", "0");
 		} else {
-			future.setAttribute("opacity", "0.4");		
+			future.setAttribute("opacity", "0.4");
 		}
 	}
 	futureon = !futureon;
@@ -188,17 +188,17 @@ text {
 
     print """
 <g id="ects-labels">
-<line x1="50" y1="550.0" x2="1150" y2="550.0" style="stroke-width: 1.5; stroke: #000000;" />
+<line x1="50" y1="550.0" x2="1250" y2="550.0" style="stroke-width: 1.5; stroke: #000000;" />
 <text x="20" y="555.0">0</text>
-<line x1="50" y1="450.0" x2="1150" y2="450.0" style="stroke-width: 1.5; stroke: #000000;" />
+<line x1="50" y1="450.0" x2="1250" y2="450.0" style="stroke-width: 1.5; stroke: #000000;" />
 <text x="20" y="455.0">60</text>
-<line x1="50" y1="350.0" x2="1150" y2="350.0" style="stroke-width: 1.5; stroke: #000000;" />
+<line x1="50" y1="350.0" x2="1250" y2="350.0" style="stroke-width: 1.5; stroke: #000000;" />
 <text x="20" y="355.0">120</text>
-<line x1="50" y1="250.0" x2="1150" y2="250.0" style="stroke-width: 3; stroke: #000000;" />
+<line x1="50" y1="250.0" x2="1250" y2="250.0" style="stroke-width: 3; stroke: #000000;" />
 <text x="20" y="255.0">180</text>
-<line x1="50" y1="150.0" x2="1150" y2="150.0" style="stroke-width: 1.5; stroke: #000000;" />
+<line x1="50" y1="150.0" x2="1250" y2="150.0" style="stroke-width: 1.5; stroke: #000000;" />
 <text x="20" y="155.0">240</text>
-<line x1="50" y1="50.0" x2="1150" y2="50.0" style="stroke-width: 3; stroke: #000000;" />
+<line x1="50" y1="50.0" x2="1250" y2="50.0" style="stroke-width: 3; stroke: #000000;" />
 <text x="20" y="55.0">300</text>
 </g>"""
 
